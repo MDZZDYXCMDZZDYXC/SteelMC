@@ -697,9 +697,8 @@ pub trait LivingEntity: Entity {
             self.broadcast_damage_event(world, source);
             if !source.is(&vanilla_damage_type_tags::DamageTypeTag::NO_IMPACT) {
                 self.mark_hurt();
-                self.broadcast_hurt_animation(world);
             }
-            self.apply_damage_knockback(source);
+            self.apply_damage_knockback(world, source);
         }
 
         if self.is_dead_or_dying() {
@@ -854,10 +853,14 @@ pub trait LivingEntity: Entity {
     }
 
     /// Applies vanilla hurt knockback for a damage source.
-    fn apply_damage_knockback(&self, source: &DamageSource) {
+    fn apply_damage_knockback(&self, world: &World, source: &DamageSource) {
         if source.is(&vanilla_damage_type_tags::DamageTypeTag::NO_KNOCKBACK) {
             return;
         }
+
+        // Vanilla skips the hurt animation for `no_knockback` damage, such as falling.
+        // Sending it anyway makes the client restart the tilt that `CDamageEvent` started.
+        self.broadcast_hurt_animation(world);
 
         let (xd, zd) = self.damage_knockback_direction(source);
         self.knockback(DAMAGE_KNOCKBACK_POWER, xd, zd);

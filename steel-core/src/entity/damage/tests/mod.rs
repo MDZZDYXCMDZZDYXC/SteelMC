@@ -18,6 +18,7 @@ use crate::test_support::{
 };
 use crate::world::World;
 
+mod hurt_animation;
 mod retention;
 
 fn history_world(history: &Arc<DamageHistory>, name: &'static str) -> Arc<World> {
